@@ -18,7 +18,7 @@ There are a few other scripts provided:
 
 - `start`: Starts up the bot without hot reloading; used for the Heroku deployment.
 
-### Configuration
+### Configuration 🔧
 
 First, install the dependencies:
 `npm install`
