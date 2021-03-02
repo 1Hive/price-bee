@@ -1,6 +1,7 @@
 const { Client } = require('discord.js')
 const dotenv = require('dotenv')
 const { getTokenPrice, getTokenSymbol } = require('./fetchData')
+const { numberWithCommas } = require('./utils')
 
 dotenv.config()
 
@@ -16,8 +17,11 @@ client.setInterval(async () => {
 
   const botMember = (await client.guilds.fetch(process.env.GUILD_ID)).me
 
-  await botMember.setNickname(`${symbol} price: $${price}`)
-  await client.user.setActivity('Market Cap: $999', { type: 'WATCHING' })
+  await botMember.setNickname(`${symbol}: $${numberWithCommas(price)}`)
+  await client.user.setActivity(
+    `MC: $${numberWithCommas(Math.round(price * process.env.CIRC_SUPPLY))}`,
+    { type: 'WATCHING' },
+  )
 }, 1 * 60 * 1000)
 
 client.login(process.env.DISCORD_API_TOKEN)
