@@ -25,6 +25,6 @@ client.setInterval(async () => {
     `MC: $${numberWithCommas(Math.round(price * circSupply))}`,
     { type: 'WATCHING' },
   )
-}, 1 * 5 * 1000)
+}, 1 * 60 * 1000)
 
 client.login(process.env.DISCORD_API_TOKEN)
