@@ -1,16 +1,16 @@
 const gql = require('graphql-tag')
 const { GraphQLWrapper } = require('@aragon/connect-thegraph')
+const dotenv = require('dotenv')
+
+dotenv.config()
 
 const SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/1hive/uniswap-v2'
-const XDAI_HNY_PAIR = '0x4505b262dc053998c10685dc5f9098af8ae5c8ad'
 
 const PRICE_QUERY = gql`
   query {
-    pair(id: "${XDAI_HNY_PAIR}") {
-      token1Price
-      token0 {
-        symbol
-      }
+    token(id: "${process.env.TOKEN_ID}") {
+      derivedETH
+      symbol
     }
   }
 `
@@ -23,13 +23,13 @@ const fetchData = async () => {
   return result
 }
 
-module.exports = async function getTokenPrice() {
-  const data = await fetchData()
-  const price = parseFloat(data.pair.token1Price).toFixed(2)
+exports.getTokenPrice = async () => {
+  const res = await fetchData()
+  const price = parseFloat(res.data.token.derivedETH).toFixed(2)
   return price
 }
 
-module.exports = async function getTokenSymbol() {
-  const data = await fetchData()
-  return data.pair.token0.symbol
+exports.getTokenSymbol = async () => {
+  const res = await fetchData()
+  return res.data.token.symbol
 }
