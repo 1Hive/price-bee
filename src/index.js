@@ -18,10 +18,12 @@ client.setInterval(async () => {
   const symbol = await getTokenSymbol()
   const circSupply = await getCoingeckoCircSupply(symbol)
 
-  const botMember = (await client.guilds.fetch(process.env.GUILD_ID)).me
+  client.guilds.cache.forEach(async (guild) => {
+    const botMember = guild.me
+    await botMember.setNickname(`${symbol}: $${numberWithCommas(price)}`)
+  })
 
-  await botMember.setNickname(`${symbol}: $${numberWithCommas(price)}`)
-  await client.user.setActivity(
+  client.user.setActivity(
     `MC: $${numberWithCommas(Math.round(price * circSupply))}`,
     { type: 'WATCHING' },
   )
