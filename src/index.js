@@ -1,7 +1,7 @@
 const { Client } = require('discord.js')
 const dotenv = require('dotenv')
 const { getTokenPrice, getTokenSymbol } = require('./fetchData')
-const { getCoingeckoCircSupply } = require('./fetchMarketCap')
+const { getCoingeckoCircSupply } = require('./fetchCirculatingSupply')
 
 const { numberWithCommas } = require('./utils')
 
@@ -23,10 +23,12 @@ client.setInterval(async () => {
     await botMember.setNickname(`${symbol}: $${numberWithCommas(price)}`)
   })
 
-  client.user.setActivity(
-    `MC: $${numberWithCommas(Math.round(price * circSupply))}`,
-    { type: 'WATCHING' },
-  )
+  if (circSupply) {
+    client.user.setActivity(
+      `MC: $${numberWithCommas(Math.round(price * circSupply))}`,
+      { type: 'WATCHING' },
+    )
+  }
 }, 1 * 60 * 1000)
 
 client.login(process.env.DISCORD_API_TOKEN)

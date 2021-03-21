@@ -7,12 +7,14 @@ const fetchTokens = async () => {
 
 exports.getCoingeckoCircSupply = async (botTokenSymbol) => {
   const tokens = await fetchTokens()
+  const tokenFound = tokens.find((token) => token.symbol === botTokenSymbol.toLowerCase())
 
-  const tokenId = tokens.find((token) => token.symbol === botTokenSymbol.toLowerCase()).id
+  if (!tokenFound) return undefined
 
+  const tokenId = tokenFound.id
   const tokenData = await (await fetch(`https://api.coingecko.com/api/v3/coins/${tokenId}`)).json()
-
   const circSupply = tokenData.market_data.circulating_supply
 
+  // eslint-disable-next-line
   return circSupply
 }
