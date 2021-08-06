@@ -12,7 +12,7 @@ const PRICES_QUERY = gql`
 	  id_in:["${process.env.DAI_ID}","${process.env.TOKEN_ID}"]
 	  }) {
 	  id
-	  derivedETH
+	  derivedNativeCurrency
 	  symbol
 	}
   }
