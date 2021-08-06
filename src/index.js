@@ -1,6 +1,6 @@
 const { Client } = require('discord.js')
 const dotenv = require('dotenv')
-const { getTokenPrice, getTokenSymbol } = require('./fetchData')
+const { getTokensData, } = require('./fetchData')
 const { getCoingeckoCircSupply } = require('./fetchCirculatingSupply')
 
 const { numberWithCommas } = require('./utils')
@@ -12,23 +12,39 @@ const client = new Client()
 // eslint-disable-next-line
 client.on('ready', () => console.log(`Bot successfully started as ${client.user.tag} 🐝`))
 
+
 // Updates token price on bot's nickname every X amount of time
+
+let step = 0;
+
 client.setInterval(async () => {
-  const price = await getTokenPrice()
-  const symbol = await getTokenSymbol()
-  const circSupply = await getCoingeckoCircSupply(symbol)
+	const tokensData = await getTokensData()
 
-  client.guilds.cache.forEach(async (guild) => {
-    const botMember = guild.me
-    await botMember.setNickname(`${symbol}: $${numberWithCommas(price)}`)
-  })
+	const daiData = tokensData.filter(token => token.id === process.env.DAI_ID)[0]
+	const tokenData = tokensData.filter(token => token.id === process.env.TOKEN_ID)[0]
 
-  if (circSupply) {
-    client.user.setActivity(
-      `MC: $${numberWithCommas(Math.round(price * circSupply))}`,
-      { type: 'WATCHING' },
-    )
-  }
-}, 1 * 60 * 1000)
+	const symbol = tokenData.symbol
+	const circSupply = await getCoingeckoCircSupply(symbol)
+
+	if (step % 2 === 0) {
+		client.guilds.cache.forEach(async (guild) => {
+			const botMember = guild.me
+			await botMember.setNickname(`${symbol}: $${numberWithCommas(parseFloat(tokenData.derivedETH / daiData.derivedETH).toFixed(2))}`)
+		})
+	}
+	else {
+		client.guilds.cache.forEach(async (guild) => {
+			const botMember = guild.me
+			await botMember.setNickname(`${symbol}: Ξ${numberWithCommas(parseFloat(tokenData.derivedETH).toFixed(3))}`)
+		})
+	}
+	if (circSupply) {
+		client.user.setActivity(
+			`MC: $${numberWithCommas(parseFloat(tokenData.derivedETH / daiData.derivedETH * circSupply).toFixed(0))}`,
+			{ type: 'WATCHING' },
+		)
+	}
+	step++;
+}, 1 * 5 * 1000)
 
 client.login(process.env.DISCORD_API_TOKEN)
