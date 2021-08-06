@@ -27,15 +27,18 @@ client.setInterval(async () => {
 	const circSupply = await getCoingeckoCircSupply(symbol)
 
 	const tokenPrice = tokenData?.derivedNativeCurrency
-	const daiPrice = daiData.derivedNativeCurrency | 1;
+	const daiPrice = daiData.derivedNativeCurrency || 1;
 
+	console.log(daiPrice)
 	if (step % 2 === 0 && process.env.DAI_ID) {
+		console.log(`${symbol}: $${numberWithCommas(parseFloat(tokenPrice / daiPrice).toFixed(2))}`)
 		client.guilds.cache.forEach(async (guild) => {
 			const botMember = guild.me
 			await botMember.setNickname(`${symbol}: $${numberWithCommas(parseFloat(tokenPrice / daiPrice).toFixed(2))}`)
 		})
 	}
 	else {
+		console.log(`${symbol}: Ξ${numberWithCommas(parseFloat(tokenPrice).toFixed(3))}`)
 		client.guilds.cache.forEach(async (guild) => {
 			const botMember = guild.me
 			await botMember.setNickname(`${symbol}: Ξ${numberWithCommas(parseFloat(tokenPrice).toFixed(3))}`)
