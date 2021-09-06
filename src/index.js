@@ -27,9 +27,9 @@ client.setInterval(async () => {
         const symbol = tokenData.symbol
         const circSupply = await getCoingeckoCircSupply(symbol)
 
-        const tokenPrice = tokenData?.derivedNativeCurrency
-        const daiPrice = daiData.derivedNativeCurrency;
-        const ethPrice = ethData.derivedNativeCurrency
+        const tokenPrice = tokenData?.derivedNativeCurrency;
+        const daiPrice = daiData?.derivedNativeCurrency;
+        const ethPrice = ethData?.derivedNativeCurrency;
 
         if (step % 2 === 0 && tokenPrice && daiPrice) {
             console.log(`${symbol}: $${numberWithCommas(parseFloat(tokenPrice / daiPrice).toFixed(2))}`)
