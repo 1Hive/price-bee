@@ -9,7 +9,7 @@ const subgraph = process.env.SUBGRAPH_URL
 const PRICES_QUERY = gql`
   query {
 	tokens(where:{
-	  id_in:["${process.env.DAI_ID}","${process.env.TOKEN_ID}"]
+	  id_in:["${process.env.DAI_ID}","${process.env.TOKEN_ID}","${process.env.WETH_ID}"]
 	  }) {
 	  id
 	  derivedNativeCurrency
@@ -19,14 +19,14 @@ const PRICES_QUERY = gql`
 `
 
 const fetchData = async () => {
-	const graphqlClient = new GraphQLWrapper(subgraph)
-	const tokensRes = await graphqlClient.performQuery(PRICES_QUERY)
+    const graphqlClient = new GraphQLWrapper(subgraph)
+    const tokensRes = await graphqlClient.performQuery(PRICES_QUERY)
 
-	if (!tokensRes.data) return undefined
-	return tokensRes
+    if (!tokensRes.data) return undefined
+    return tokensRes
 }
 
 exports.getTokensData = async () => {
-	const res = await fetchData()
-	return res.data.tokens
+    const res = await fetchData()
+    return res.data.tokens
 }

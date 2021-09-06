@@ -22,26 +22,28 @@ client.setInterval(async () => {
     if (tokensData) {
         const daiData = process.env.DAI_ID ? tokensData.filter(token => token.id === process.env.DAI_ID)[0] : {};
         const tokenData = tokensData.filter(token => token.id === process.env.TOKEN_ID)[0]
+        const ethData = process.env.WETH_ID ? tokensData.filter(token => token.id === process.env.WETH_ID)[0] : {};
 
         const symbol = tokenData.symbol
         const circSupply = await getCoingeckoCircSupply(symbol)
 
         const tokenPrice = tokenData?.derivedNativeCurrency
         const daiPrice = daiData.derivedNativeCurrency || 1;
+        const ethPrice = ethData.derivedNativeCurrency
 
-        if (step % 2 === 0 && process.env.DAI_ID) {
+        if (step % 2 === 0 && tokenPrice && daiPrice) {
             console.log(`${symbol}: $${numberWithCommas(parseFloat(tokenPrice / daiPrice).toFixed(2))}`)
             client.guilds.cache.forEach(async (guild) => {
                 const botMember = guild.me
                 await botMember.setNickname(`${symbol}: $${numberWithCommas(parseFloat(tokenPrice / daiPrice).toFixed(2))}`)
             })
         }
-        else {
+        else if (tokenPrice && ethPrice) {
             let decimals = 3
             if (tokenPrice < 10) {
                 decimals = 6
             }
-            console.log(`${symbol}: Ξ${parseFloat(tokenPrice).toFixed(decimals)}`)
+            console.log(`${symbol}: Ξ${parseFloat(tokenPrice / ethPrice).toFixed(decimals)}`)
             client.guilds.cache.forEach(async (guild) => {
                 const botMember = guild.me
                 await botMember.setNickname(`${symbol}: Ξ${parseFloat(tokenPrice).toFixed(decimals)}`)
