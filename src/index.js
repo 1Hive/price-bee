@@ -18,40 +18,43 @@ client.on('ready', () => console.log(`Bot successfully started as ${client.user.
 let step = 0;
 
 client.setInterval(async () => {
-	const tokensData = await getTokensData()
-	if (tokensData) {
-		const daiData = process.env.DAI_ID ? tokensData.filter(token => token.id === process.env.DAI_ID)[0] : {};
-		const tokenData = tokensData.filter(token => token.id === process.env.TOKEN_ID)[0]
+    const tokensData = await getTokensData()
+    if (tokensData) {
+        const daiData = process.env.DAI_ID ? tokensData.filter(token => token.id === process.env.DAI_ID)[0] : {};
+        const tokenData = tokensData.filter(token => token.id === process.env.TOKEN_ID)[0]
 
-		const symbol = tokenData.symbol
-		const circSupply = await getCoingeckoCircSupply(symbol)
+        const symbol = tokenData.symbol
+        const circSupply = await getCoingeckoCircSupply(symbol)
 
-		const tokenPrice = tokenData?.derivedNativeCurrency
-		const daiPrice = daiData.derivedNativeCurrency || 1;
+        const tokenPrice = tokenData?.derivedNativeCurrency
+        const daiPrice = daiData.derivedNativeCurrency || 1;
 
-		console.log(daiPrice)
-		if (step % 2 === 0 && process.env.DAI_ID) {
-			console.log(`${symbol}: $${numberWithCommas(parseFloat(tokenPrice / daiPrice).toFixed(2))}`)
-			client.guilds.cache.forEach(async (guild) => {
-				const botMember = guild.me
-				await botMember.setNickname(`${symbol}: $${numberWithCommas(parseFloat(tokenPrice / daiPrice).toFixed(2))}`)
-			})
-		}
-		else {
-			console.log(`${symbol}: Ξ${numberWithCommas(parseFloat(tokenPrice).toFixed(3))}`)
-			client.guilds.cache.forEach(async (guild) => {
-				const botMember = guild.me
-				await botMember.setNickname(`${symbol}: Ξ${numberWithCommas(parseFloat(tokenPrice).toFixed(3))}`)
-			})
-		}
-		if (circSupply) {
-			client.user.setActivity(
-				`MC: $${numberWithCommas(parseFloat(tokenPrice / daiPrice * circSupply).toFixed(0))}`,
-				{ type: 'WATCHING' },
-			)
-		}
-	}
-	step++;
+        if (step % 2 === 0 && process.env.DAI_ID) {
+            console.log(`${symbol}: $${numberWithCommas(parseFloat(tokenPrice / daiPrice).toFixed(2))}`)
+            client.guilds.cache.forEach(async (guild) => {
+                const botMember = guild.me
+                await botMember.setNickname(`${symbol}: $${numberWithCommas(parseFloat(tokenPrice / daiPrice).toFixed(2))}`)
+            })
+        }
+        else {
+            let decimals = 3
+            if (tokenPrice < 10) {
+                decimals = 6
+            }
+            console.log(`${symbol}: Ξ${parseFloat(tokenPrice).toFixed(decimals)}`)
+            client.guilds.cache.forEach(async (guild) => {
+                const botMember = guild.me
+                await botMember.setNickname(`${symbol}: Ξ${parseFloat(tokenPrice).toFixed(decimals)}`)
+            })
+        }
+        if (circSupply) {
+            client.user.setActivity(
+                `MC: $${numberWithCommas(parseFloat(tokenPrice / daiPrice * circSupply).toFixed(0))}`,
+                { type: 'WATCHING' },
+            )
+        }
+    }
+    step++;
 }, 1 * 10 * 1000)
 
 client.login(process.env.DISCORD_API_TOKEN)
