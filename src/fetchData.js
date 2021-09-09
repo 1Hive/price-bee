@@ -5,6 +5,7 @@ const dotenv = require('dotenv')
 dotenv.config()
 
 const subgraph = process.env.SUBGRAPH_URL
+const subgraph_TVL = process.env.TVL_SUBGRAPH
 
 const PRICES_QUERY = gql`
   query {
@@ -18,6 +19,19 @@ const PRICES_QUERY = gql`
   }
 `
 
+const TVL_QUERY = gql`
+  query {
+    reserves(first: 8, orderBy:utilizationRate) {
+      price{
+        priceInEth
+          }
+      symbol
+      decimals
+      totalLiquidity
+    }
+  }
+`
+
 const fetchData = async () => {
     const graphqlClient = new GraphQLWrapper(subgraph)
     const tokensRes = await graphqlClient.performQuery(PRICES_QUERY)
@@ -26,7 +40,20 @@ const fetchData = async () => {
     return tokensRes
 }
 
+const fetchTVLData = async () => {
+    const graphqlClient = new GraphQLWrapper(subgraph_TVL)
+    const tvlRes = await graphqlClient.performQuery(TVL_QUERY)
+
+    if (!tvlRes.data) return undefined
+    return tvlRes
+}
+
 exports.getTokensData = async () => {
     const res = await fetchData()
     return res.data.tokens
+}
+
+exports.getTVLData = async () => {
+    const res = await fetchTVLData()
+    return res.data.reserves
 }

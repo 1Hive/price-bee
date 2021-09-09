@@ -1,6 +1,6 @@
 const { Client } = require('discord.js')
 const dotenv = require('dotenv')
-const { getTokensData, } = require('./fetchData')
+const { getTokensData, getTVLData } = require('./fetchData')
 const { getCoingeckoCircSupply } = require('./fetchCirculatingSupply')
 
 const { numberWithCommas } = require('./utils')
@@ -19,6 +19,14 @@ let step = 0;
 
 client.setInterval(async () => {
     const tokensData = await getTokensData()
+    let totalTVL = 0
+    if (process.env.TVL_SUBGRAPH) {
+        const tvlData = await getTVLData()
+        tvlData.map(res => {
+            reserveTVL = (parseInt(res.price.priceInEth) / (10 ** 8)) * (parseInt(res.totalLiquidity) / (10 ** res.decimals))
+            totalTVL = totalTVL + reserveTVL;
+        })
+    }
     if (tokensData) {
         const daiData = process.env.DAI_ID ? tokensData.filter(token => token.id === process.env.DAI_ID)[0] : {};
         const tokenData = tokensData.filter(token => token.id === process.env.TOKEN_ID)[0]
@@ -30,6 +38,7 @@ client.setInterval(async () => {
         const tokenPrice = tokenData?.derivedNativeCurrency
         const daiPrice = daiData.derivedNativeCurrency;
         const ethPrice = ethData.derivedNativeCurrency
+
 
         if (step % 2 === 0 && tokenPrice && daiPrice) {
             console.log(`${symbol}: $${numberWithCommas(parseFloat(tokenPrice / daiPrice).toFixed(2))}`)
@@ -49,9 +58,15 @@ client.setInterval(async () => {
                 await botMember.setNickname(`${symbol}: Ξ${parseFloat(tokenPrice / ethPrice).toFixed(decimals)}`)
             })
         }
-        if (circSupply && tokenPrice && ethPrice) {
+        if (step % 2 === 0 & circSupply && tokenPrice && ethPrice) {
             client.user.setActivity(
                 `MC: $${numberWithCommas(parseFloat(tokenPrice / daiPrice * circSupply).toFixed(0))}`,
+                { type: 'WATCHING' },
+            )
+        }
+        else if (totalTVL > 0) {
+            client.user.setActivity(
+                `TVL: $${numberWithCommas(parseFloat(totalTVL).toFixed(0))}`,
                 { type: 'WATCHING' },
             )
         }
