@@ -1,11 +1,18 @@
 {
-  "name": "price-bee",
-  "description": "A Discord bot to show token prices.",
-  "repository": "https://github.com/1Hive/price-bee",
-  "logo": "https://i.imgur.com/dRxtULu.png",
-  "keywords": ["node", "discord", "1Hive", "token"],
-  "env": {
-    "DISCORD_API_TOKEN": "YOUR_DISCORD_API_TOKEN",
-    "TOKEN_ID": "Your token ID"
-  }
+	"name": "price-bee",
+	"description": "A Discord bot to show token prices.",
+	"repository": "https://github.com/1Hive/price-bee",
+	"logo": "https://i.imgur.com/dRxtULu.png",
+	"keywords": [
+		"node",
+		"discord",
+		"1Hive",
+		"token"
+	],
+	"env": {
+		"DISCORD_API_TOKEN": "YOUR_DISCORD_API_TOKEN",
+		"TOKEN_ID": "Your token ID",
+		"DAI_ID": "The WETH address in this subgraph",
+		"SUBGRAPH_URL": "Subgraph Instance"
+	}
 }

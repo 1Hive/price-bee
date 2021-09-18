@@ -4,32 +4,56 @@ const dotenv = require('dotenv')
 
 dotenv.config()
 
-const SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/1hive/uniswap-v2'
+const subgraph = process.env.SUBGRAPH_URL
+const subgraph_TVL = process.env.TVL_SUBGRAPH
 
-const PRICE_QUERY = gql`
+const PRICES_QUERY = gql`
   query {
-    token(id: "${process.env.TOKEN_ID}") {
-      derivedETH
+	tokens(where:{
+	  id_in:["${process.env.DAI_ID}","${process.env.TOKEN_ID}","${process.env.WETH_ID}"]
+	  }) {
+	  id
+	  derivedNativeCurrency
+	  symbol
+	}
+  }
+`
+
+const TVL_QUERY = gql`
+  query {
+    reserves(first: 8, orderBy:utilizationRate) {
+      price{
+        priceInEth
+          }
       symbol
+      decimals
+      totalLiquidity
     }
   }
 `
 
 const fetchData = async () => {
-  const graphqlClient = new GraphQLWrapper(SUBGRAPH_URL)
-  const result = await graphqlClient.performQuery(PRICE_QUERY)
+    const graphqlClient = new GraphQLWrapper(subgraph)
+    const tokensRes = await graphqlClient.performQuery(PRICES_QUERY)
 
-  if (!result.data) return undefined
-  return result
+    if (!tokensRes.data) return undefined
+    return tokensRes
 }
 
-exports.getTokenPrice = async () => {
-  const res = await fetchData()
-  const price = parseFloat(res.data.token.derivedETH).toFixed(2)
-  return price
+const fetchTVLData = async () => {
+    const graphqlClient = new GraphQLWrapper(subgraph_TVL)
+    const tvlRes = await graphqlClient.performQuery(TVL_QUERY)
+
+    if (!tvlRes.data) return undefined
+    return tvlRes
 }
 
-exports.getTokenSymbol = async () => {
-  const res = await fetchData()
-  return res.data.token.symbol
+exports.getTokensData = async () => {
+    const res = await fetchData()
+    return res.data.tokens
+}
+
+exports.getTVLData = async () => {
+    const res = await fetchTVLData()
+    return res.data.reserves
 }
