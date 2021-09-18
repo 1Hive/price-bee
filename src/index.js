@@ -37,7 +37,7 @@ function timeout() {
                 (token) => token.id === process.env.TOKEN_ID,
             )[0]
             const symbol = tokenData.symbol
-            const circSupply = await getCoingeckoCircSupply(symbol)
+            const circSupply = process.env.TOKEN_CIRCULATING_SUPPLY ? process.env.TOKEN_CIRCULATING_SUPPLY : await getCoingeckoCircSupply(symbol)
             const daiData = process.env.DAI_ID
                 ? tokensData.filter((token) => token.id === process.env.DAI_ID)[0]
                 : {}
@@ -82,7 +82,7 @@ function timeout() {
                     )
                 })
             }
-            if ((step % 2 === 0) & circSupply && tokenPrice && daiPrice) {
+            if ((step % 2 === 0) && circSupply && tokenPrice && daiPrice) {
                 client.user.setActivity(
                     `MC: $${numberWithCommas(
                         parseFloat((tokenPrice / daiPrice) * circSupply).toFixed(0),
@@ -98,7 +98,7 @@ function timeout() {
         }
         step++
         timeout()
-    }, 15 * 1000)
+    }, 1 * 1000)
 }
 client.login(process.env.DISCORD_API_TOKEN)
 timeout()
