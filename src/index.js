@@ -98,7 +98,7 @@ function timeout() {
         }
         step++
         timeout()
-    }, 15 * 1000)
+    }, 30 * 1000)
 }
 client.login(process.env.DISCORD_API_TOKEN)
 timeout()
